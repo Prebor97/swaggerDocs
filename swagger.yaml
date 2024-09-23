@@ -1,0 +1,410 @@
+openapi: 3.0.0
+info:
+  version: 1.0.0
+  title: User Management API
+  description: API for user registration, login, profile management, and hospital/doctor management
+servers:
+  - url: http://localhost
+
+components:
+  schemas:
+    UserRegistrationDto:
+      type: object
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+        confirmPassword:
+          type: string
+          format: password
+
+    LoginRequestDto:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+
+    PasswordResetDto:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+
+    ConfirmPasswordDto:
+      type: object
+      properties:
+        password:
+          type: string
+          format: password
+        confirmPassword:
+          type: string
+          format: password
+
+    UserProfileDto:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        name:
+          type: string
+        phoneNumber:
+          type: string
+        dateOfBirth:
+          type: string
+          format: date
+        emergencyContact:
+          type: string
+        insuranceDetails:
+          type: string
+        address:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        medicalHistory:
+          type: string
+        avatarUrl:
+          type: string
+          format: uri
+
+    DoctorRegistrationDto:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+        confirmPassword:
+          type: string
+          format: password
+
+    DoctorProfileDto:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        phoneNumber:
+          type: string
+        services:
+          type: array
+          items:
+            $ref: '#/components/schemas/ServiceDto'
+        address:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        bio:
+          type: string
+
+    HospitalRegistrationDto:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+        confirmPassword:
+          type: string
+          format: password
+
+    HospitalProfileDto:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        officeNumber:
+          type: string
+        services:
+          type: array
+          items:
+            $ref: '#/components/schemas/ServiceDto'
+        address:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        bio:
+          type: string
+
+    ServiceDto:
+      type: object
+      properties:
+        serviceCategory:
+          type: string
+        servicePrice:
+          type: number
+          format: float
+        serviceDescription:
+          type: string
+        serviceLocation:
+          type: string
+
+paths:
+  /api/v1/user/registration:
+    post:
+      summary: User Registration
+      requestBody:
+        description: Register a new user
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRegistrationDto'
+      responses:
+        '201':
+          description: User successfully registered
+          content:
+            application/json:
+              example:
+                message: "User successfully registered. Please check your mail."
+        '400':
+          description: Bad request, email already exists
+          content:
+            application/json:
+              example:
+                message: "Email already exists."
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              example:
+                message: "Unexpected error occurred."
+
+  /api/v1/user/registration-confirmation/{token}:
+    get:
+      summary: Confirm Email Registration
+      parameters:
+        - name: token
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Email confirmed
+          content:
+            application/json:
+              example:
+                message: "Email confirmed."
+        '400':
+          description: Invalid or expired token
+          content:
+            application/json:
+              example:
+                message: "Invalid or expired token."
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              example:
+                message: "Unexpected error occurred."
+
+  /api/v1/login:
+    post:
+      summary: User Login
+      requestBody:
+        description: User login with email and password
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequestDto'
+      responses:
+        '200':
+          description: Login successful, token provided
+          content:
+            application/json:
+              example:
+                token: "jwt-token-here"
+        '401':
+          description: Unauthorized, email or password incorrect
+          content:
+            application/json:
+              example:
+                message: "Email or password does not match."
+        '403':
+          description: Forbidden, account disabled
+          content:
+            application/json:
+              example:
+                message: "Account disabled."
+        '400':
+          description: Bad request, missing email or password
+          content:
+            application/json:
+              example:
+                message: "Missing email or password field."
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              example:
+                message: "Unexpected error occurred."
+
+  /api/v1/logout:
+    post:
+      summary: User Logout
+      responses:
+        '200':
+          description: Logout successful
+          content:
+            application/json:
+              example:
+                message: "Logout successful."
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              example:
+                message: "Unexpected error occurred."
+
+  /api/v1/password-reset/request:
+    post:
+      summary: Request Password Reset
+      requestBody:
+        description: Request a password reset email
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PasswordResetDto'
+      responses:
+        '200':
+          description: Password reset mail sent
+          content:
+            application/json:
+              example:
+                message: "Reset mail sent."
+        '404':
+          description: Email not found
+          content:
+            application/json:
+              example:
+                message: "Email not found."
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              example:
+                message: "Unexpected error occurred."
+
+  /api/v1/password-reset/confirm:
+    post:
+      summary: Confirm Password Reset
+      requestBody:
+        description: Reset password confirmation
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfirmPasswordDto'
+      responses:
+        '200':
+          description: Password reset successful
+          content:
+            application/json:
+              example:
+                message: "Password reset successful."
+        '400':
+          description: Bad request, passwords do not match
+          content:
+            application/json:
+              example:
+                message: "Passwords do not match."
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              example:
+                message: "Unexpected error occurred."
+
+  /api/v1/user/profile:
+    put:
+      summary: Update User Profile
+      requestBody:
+        description: Update the user profile
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserProfileDto'
+      responses:
+        '200':
+          description: Profile updated successfully
+          content:
+            application/json:
+              example:
+                message: "Profile updated successfully."
+        '400':
+          description: Bad request, invalid data
+          content:
+            application/json:
+              example:
+                message: "Invalid data provided."
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              example:
+                message: "Unexpected error occurred."
+
+  /api/v1/hospital-care-provider/profile:
+    put:
+      summary: Update Doctor or Hospital Profile
+      requestBody:
+        description: Update the doctor or hospital profile
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DoctorProfileDto'
+      responses:
+        '200':
+          description: Profile updated successfully
+          content:
+            application/json:
+              example:
+                message: "Profile updated successfully."
+        '400':
+          description: Bad request, invalid data
+          content:
+            application/json:
+              example:
+                message: "Invalid data provided."
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              example:
+                message: "Unexpected error occurred."
