@@ -1,13 +1,14 @@
 openapi: 3.0.0
 info:
   version: 1.0.0
-  title: User Management API
-  description: API for user registration, login, profile management, and hospital/doctor management
+  title: User, Doctor, and Hospital Management API
+  description: API for user, doctor, and hospital registration, login, and profile management
 servers:
   - url: http://localhost
 
 components:
   schemas:
+    # User DTOs
     UserRegistrationDto:
       type: object
       properties:
@@ -81,6 +82,7 @@ components:
           type: string
           format: uri
 
+    # Doctor DTOs
     DoctorRegistrationDto:
       type: object
       properties:
@@ -119,6 +121,7 @@ components:
         bio:
           type: string
 
+    # Hospital DTOs
     HospitalRegistrationDto:
       type: object
       properties:
@@ -157,6 +160,7 @@ components:
         bio:
           type: string
 
+    # Shared Service DTO
     ServiceDto:
       type: object
       properties:
@@ -171,6 +175,7 @@ components:
           type: string
 
 paths:
+  # User Endpoints
   /api/v1/user/registration:
     post:
       summary: User Registration
@@ -379,16 +384,108 @@ paths:
               example:
                 message: "Unexpected error occurred."
 
-  /api/v1/hospital-care-provider/profile:
-    put:
-      summary: Update Doctor or Hospital Profile
+  # Doctor Endpoints
+  /api/v1/doctor/registration:
+    post:
+      summary: Doctor Registration
       requestBody:
-        description: Update the doctor or hospital profile
+        description: Register a new doctor
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DoctorRegistrationDto'
+      responses:
+        '201':
+          description: Doctor successfully registered
+          content:
+            application/json:
+              example:
+                message: "Doctor successfully registered. Please check your mail."
+        '400':
+          description: Bad request, email already exists
+          content:
+            application/json:
+              example:
+                message: "Email already exists."
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              example:
+                message: "Unexpected error occurred."
+
+  /api/v1/doctor/profile:
+    put:
+      summary: Update Doctor Profile
+      requestBody:
+        description: Update the doctor's profile
         required: true
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/DoctorProfileDto'
+      responses:
+        '200':
+          description: Profile updated successfully
+          content:
+            application/json:
+              example:
+                message: "Profile updated successfully."
+        '400':
+          description: Bad request, invalid data
+          content:
+            application/json:
+              example:
+                message: "Invalid data provided."
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              example:
+                message: "Unexpected error occurred."
+
+  # Hospital Endpoints
+  /api/v1/hospital/registration:
+    post:
+      summary: Hospital Registration
+      requestBody:
+        description: Register a new hospital
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HospitalRegistrationDto'
+      responses:
+        '201':
+          description: Hospital successfully registered
+          content:
+            application/json:
+              example:
+                message: "Hospital successfully registered. Please check your mail."
+        '400':
+          description: Bad request, email already exists
+          content:
+            application/json:
+              example:
+                message: "Email already exists."
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              example:
+                message: "Unexpected error occurred."
+
+  /api/v1/hospital/profile:
+    put:
+      summary: Update Hospital Profile
+      requestBody:
+        description: Update the hospital's profile
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HospitalProfileDto'
       responses:
         '200':
           description: Profile updated successfully
